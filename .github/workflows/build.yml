@@ -1,0 +1,72 @@
+name: Build
+
+# Push to main / pull request: build + self-test, app kept as a workflow artifact.
+# Push a tag like v1.2.0: also publish the zipped app to a GitHub Release.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version
+        id: v
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build universal app (arm64 + x86_64)
+        env:
+          APP_VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          swiftc --version
+          mkdir -p dist
+          INSTALL_DIR="$PWD/dist" ./build.sh
+          test -d "dist/Witrn USB Tester.app"
+          lipo -archs "dist/Witrn USB Tester.app/Contents/MacOS/WitrnUSBTester"
+
+      - name: Self-test (no device needed)
+        run: |
+          BIN="dist/Witrn USB Tester.app/Contents/MacOS/WitrnUSBTester"
+          "$BIN" --selftest-monitor
+          "$BIN" --selftest-custom
+
+      - name: Package
+        id: pkg
+        run: |
+          ZIP="Witrn-USB-Tester-${{ steps.v.outputs.version }}-macos-universal.zip"
+          ditto -c -k --sequesterRsrc --keepParent "dist/Witrn USB Tester.app" "$ZIP"
+          shasum -a 256 "$ZIP" | tee "$ZIP.sha256"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Witrn-USB-Tester-${{ steps.v.outputs.version }}
+          path: |
+            ${{ steps.pkg.outputs.zip }}
+            ${{ steps.pkg.outputs.zip }}.sha256
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZIP: ${{ steps.pkg.outputs.zip }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$ZIP" "$ZIP.sha256" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$ZIP" "$ZIP.sha256" \
+              --title "Witrn USB Tester ${GITHUB_REF_NAME#v}" --generate-notes
+          fi
