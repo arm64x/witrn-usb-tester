@@ -129,4 +129,4 @@ WITRN, K2 và CC1 là tên thuộc về chủ sở hữu tương ứng, ở đâ
 
 ## Giấy phép
 
-[MIT](LICENSE) — tự do dùng, sửa và chia sẻ. File giấy phép có kèm thông báo MIT của WITRN-K2-REVERSE. Firmware và công cụ chính hãng của WITRN không nằm trong repo này và vẫn theo điều khoản riêng của WITRN.
+[MIT](LICENSE) — tự do dùng, sửa và chia sẻ. Thông báo MIT của WITRN-K2-REVERSE nằm trong [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Firmware và công cụ chính hãng của WITRN không nằm trong repo này và vẫn theo điều khoản riêng của WITRN.

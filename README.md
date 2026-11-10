@@ -129,4 +129,4 @@ WITRN, K2 and CC1 are names of their respective owner and are used here only to 
 
 ## License
 
-[MIT](LICENSE) — free to use, modify and share. The license file also carries the MIT notice of WITRN-K2-REVERSE. WITRN's firmware and official tools are not part of this repository and remain under WITRN's own terms.
+[MIT](LICENSE) — free to use, modify and share. The MIT notice of WITRN-K2-REVERSE is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). WITRN's firmware and official tools are not part of this repository and remain under WITRN's own terms.
