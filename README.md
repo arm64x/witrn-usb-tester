@@ -126,3 +126,7 @@ This app would not exist without the following work:
 - Apple frameworks: SwiftUI, AppKit, IOKit (HID), Compression.
 
 WITRN, K2 and CC1 are names of their respective owner and are used here only to describe compatibility.
+
+## License
+
+[MIT](LICENSE) — free to use, modify and share. The license file also carries the MIT notice of WITRN-K2-REVERSE. WITRN's firmware and official tools are not part of this repository and remain under WITRN's own terms.

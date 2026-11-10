@@ -126,3 +126,7 @@ App này dựa trên các nguồn sau:
 - Framework của Apple: SwiftUI, AppKit, IOKit (HID), Compression.
 
 WITRN, K2 và CC1 là tên thuộc về chủ sở hữu tương ứng, ở đây chỉ dùng để nói về tính tương thích.
+
+## Giấy phép
+
+[MIT](LICENSE) — tự do dùng, sửa và chia sẻ. File giấy phép có kèm thông báo MIT của WITRN-K2-REVERSE. Firmware và công cụ chính hãng của WITRN không nằm trong repo này và vẫn theo điều khoản riêng của WITRN.
