@@ -57,9 +57,17 @@ do_app() {
   local arch
   for arch in arm64 x86_64; do
     swiftc -O -swift-version 5 -target "$arch-apple-macos11.0" -framework Cocoa -framework SwiftUI -framework IOKit \
-           -framework UniformTypeIdentifiers -o "$build/$EXEC_NAME.$arch" "$HERE/main.swift"
+           -framework UniformTypeIdentifiers -Xlinker -rpath -Xlinker @executable_path/../Frameworks \
+           -o "$build/$EXEC_NAME.$arch" "$HERE/main.swift"
   done
   lipo -create "$build/$EXEC_NAME.arm64" "$build/$EXEC_NAME.x86_64" -output "$contents/MacOS/$EXEC_NAME"
+  # macOS 11 chưa có libswift_Concurrency trong hệ thống (từ macOS 12 mới có) -> nhúng bản back-deploy của toolchain,
+  # thiếu thì app chết ngay lúc mở trên macOS 11. macOS 12+ vẫn dùng bản hệ thống vì /usr/lib/swift đứng trước trong rpath.
+  local conc; conc="$(dirname "$(dirname "$(xcrun --find swiftc)")")/lib/swift-5.5/macosx/libswift_Concurrency.dylib"
+  [ -f "$conc" ] || conc="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-5.5/macosx/libswift_Concurrency.dylib"
+  if [ -f "$conc" ]; then mkdir -p "$contents/Frameworks"; cp "$conc" "$contents/Frameworks/"
+  elif [ -n "${CI:-}" ]; then die "Không tìm thấy libswift_Concurrency.dylib back-deploy (app sẽ không chạy trên macOS 11)"
+  else warn "Không tìm thấy libswift_Concurrency.dylib back-deploy: app chỉ chạy được từ macOS 12 (cần Xcode đầy đủ để hỗ trợ macOS 11)"; fi
   ok "đã biên dịch"
   info "Tạo icon"; make_icns "$build" "$contents/Resources/App.icns" && ok "icon OK" || true
   cat > "$contents/Info.plist" <<PLIST
